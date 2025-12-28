@@ -17,7 +17,6 @@ export default async function SessionsPage() {
     id: sessions.id,
     userId: sessions.userId,
     userEmail: users.email,
-    question: sessions.question,
     spreadId: sessions.spreadId,
     createdAt: sessions.createdAt,
   })
@@ -37,7 +36,6 @@ export default async function SessionsPage() {
             <TableRow className="hover:bg-transparent border-black/5">
               <TableHead className="w-[100px]">ID</TableHead>
               <TableHead>User</TableHead>
-              <TableHead>Question</TableHead>
               <TableHead>Spread</TableHead>
               <TableHead className="text-right">Created At</TableHead>
             </TableRow>
@@ -53,9 +51,6 @@ export default async function SessionsPage() {
                     <span className="text-sm">{session.userEmail}</span>
                     <span className="text-xs text-muted-foreground">ID: {session.userId}</span>
                   </div>
-                </TableCell>
-                <TableCell className="max-w-[300px] truncate" title={session.question}>
-                  {session.question}
                 </TableCell>
                 <TableCell>{session.spreadId}</TableCell>
                 <TableCell className="text-right text-muted-foreground">{new Date(session.createdAt).toLocaleString()}</TableCell>
