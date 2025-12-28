@@ -15,6 +15,7 @@ export function AdminNav() {
     { href: "/admin", label: "Dashboard" },
     { href: "/admin/users", label: "Users" },
     { href: "/admin/sessions", label: "Sessions" },
+    { href: "/admin/spreads", label: "Spreads" },
     { href: "/admin/codes", label: "Codes" },
   ]
 
