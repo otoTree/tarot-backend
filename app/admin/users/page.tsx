@@ -50,7 +50,7 @@ export default async function UsersPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-3xl font-light tracking-tight">User Management</h2>
         <div className="flex gap-2">
             <UserSearch />

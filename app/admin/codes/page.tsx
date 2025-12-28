@@ -32,7 +32,7 @@ export default async function CodesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-3xl font-light tracking-tight">Redemption Codes</h2>
         <div className="flex gap-2">
           <ExportCodesDialog codes={codes.map(c => ({
