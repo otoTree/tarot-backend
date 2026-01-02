@@ -2,15 +2,17 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Trash, ArrowLeft, Save } from 'lucide-react';
+import { Plus, Trash, ArrowLeft, Save, Move } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from 'next/link';
+import { SpreadCanvas } from './spread-canvas';
 
 interface SpreadPosition {
   id?: number;
@@ -78,6 +80,14 @@ export function EditSpreadForm({ spreads }: { spreads: Spread[] }) {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [activeTab, setActiveTab] = useState("en");
+  const [selectedEnIndex, setSelectedEnIndex] = useState<number | null>(null);
+  const [selectedZhIndex, setSelectedZhIndex] = useState<number | null>(null);
+
+  const selectedIndex = activeTab === 'en' ? selectedEnIndex : selectedZhIndex;
+  const setSelectedIndex = (index: number | null) => {
+    if (activeTab === 'en') setSelectedEnIndex(index);
+    else setSelectedZhIndex(index);
+  };
 
   const updateFormData = (lang: 'en' | 'zh', updates: Partial<SpreadFormData>) => {
       if (lang === 'en') {
@@ -106,12 +116,18 @@ export function EditSpreadForm({ spreads }: { spreads: Spread[] }) {
         y: 0,
       };
       updateFormData(lang, { positions: [...positions, newPos] });
+      setSelectedIndex(positions.length);
   };
 
   const removePosition = (lang: 'en' | 'zh', index: number) => {
       const currentData = lang === 'en' ? enData : zhData;
       const newPositions = currentData.positions.filter((_, i) => i !== index);
       updateFormData(lang, { positions: newPositions });
+      if (selectedIndex === index) {
+          setSelectedIndex(null);
+      } else if (selectedIndex !== null && selectedIndex > index) {
+          setSelectedIndex(selectedIndex - 1);
+      }
   };
 
   const syncLayout = () => {
@@ -214,7 +230,30 @@ export function EditSpreadForm({ spreads }: { spreads: Spread[] }) {
   const renderForm = (lang: 'en' | 'zh') => {
       const data = lang === 'en' ? enData : zhData;
       return (
-          <div className="grid gap-6 md:grid-cols-2 mt-4">
+          <div className="space-y-6 mt-4">
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Visual Layout Design (100x80)</CardTitle>
+                    <Move className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <SpreadCanvas 
+                        positions={data.positions} 
+                        selectedIndex={selectedIndex}
+                        onSelect={setSelectedIndex}
+                        onPositionChange={(index, x, y) => {
+                            const newPositions = [...data.positions];
+                            newPositions[index] = { ...newPositions[index], x, y };
+                            updateFormData(lang, { positions: newPositions });
+                        }}
+                    />
+                    <p className="text-[10px] text-muted-foreground mt-2 text-center">
+                        Drag cards to update their coordinates. Coordinate system is 100 (W) x 80 (H).
+                    </p>
+                </CardContent>
+            </Card>
+
+            <div className="grid gap-6 md:grid-cols-2">
             <Card>
             <CardHeader>
                 <CardTitle>{lang === 'en' ? 'English' : 'Chinese'} Information</CardTitle>
@@ -273,12 +312,27 @@ export function EditSpreadForm({ spreads }: { spreads: Spread[] }) {
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
                 {data.positions.map((pos, index) => (
-                <div key={index} className="rounded-lg border p-4 space-y-3 bg-muted/20">
+                <div 
+                    key={index} 
+                    className={cn(
+                        "rounded-lg border p-4 space-y-3 transition-all cursor-pointer",
+                        selectedIndex === index 
+                            ? "bg-black/[0.03] border-black/40 ring-1 ring-black/5" 
+                            : "bg-muted/20 border-transparent hover:border-black/10"
+                    )}
+                    onClick={() => setSelectedIndex(index)}
+                >
                     <div className="flex items-center justify-between">
-                        <h4 className="font-medium text-sm">Position #{index + 1}</h4>
-                        <Button type="button" variant="ghost" size="sm" onClick={() => removePosition(lang, index)}>
+                        <h4 className={cn(
+                            "font-medium text-sm transition-colors",
+                            selectedIndex === index ? "text-black" : "text-black/60"
+                        )}>Position #{index + 1}</h4>
+                        <Button type="button" variant="ghost" size="sm" onClick={(e) => {
+                            e.stopPropagation();
+                            removePosition(lang, index);
+                        }}>
                             <Trash className="h-4 w-4 text-red-500" />
                         </Button>
                     </div>
@@ -333,6 +387,7 @@ export function EditSpreadForm({ spreads }: { spreads: Spread[] }) {
             </CardContent>
             </Card>
         </div>
+    </div>
       );
   };
 

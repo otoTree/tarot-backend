@@ -15,6 +15,7 @@ import { Pagination } from '@/components/admin/pagination';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
+import { SpreadThumbnail } from '@/components/admin/spread-thumbnail';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,6 +64,7 @@ export default async function SpreadsPage({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-black/5">
+              <TableHead className="w-[80px]">Layout</TableHead>
               <TableHead>Slug</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Lang</TableHead>
@@ -75,6 +77,9 @@ export default async function SpreadsPage({
           <TableBody>
             {allSpreads.map((spread) => (
               <TableRow key={spread.id} className="border-black/5 hover:bg-black/[0.02]">
+                <TableCell>
+                  <SpreadThumbnail positions={spread.positions} className="w-12" />
+                </TableCell>
                 <TableCell className="font-medium">{spread.slug}</TableCell>
                 <TableCell>{spread.name}</TableCell>
                 <TableCell className="uppercase">{spread.lang}</TableCell>
